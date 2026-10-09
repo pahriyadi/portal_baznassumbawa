@@ -1,0 +1,244 @@
+/*
+ * 📄 Panduan Desain Universal — "Putih di Atas Kertas" (Paper White Design System)
+ * Versi: 2.0 — Terakhir diperbarui: 12 Juli 2026
+ * Framework: AdminLTE 3 + Bootstrap 4 (BAZNAS Kabupaten Sumbawa)
+ * Konsep: Simpel, Klasik, Cepat, Bersih, Minimalis, Elegan + Sudut Kotak Biasa (border-radius: 0px)
+ */
+
+:root {
+    --putih: #ffffff;
+    --border-utama: #b8b8b8;
+    --border-header-tabel: #b0b0b0;
+    --border-luar-tabel: #a0a0a0;
+    --border-menu: #d3d3d3;
+    --border-submenu: #e0e0e0;
+    --teks-utama: #333333;
+    --teks-konten: #444444;
+    --teks-sekunder: #666666;
+    --teks-placeholder: #999999;
+    --hover-tabel: #f0f7f3;
+    --hover-menu: #f5f5f5;
+    --aktif-bg: #e6f4ea;
+    --aktif-teks: #076e34;
+    --aktif-border: #0d9f4f;
+    --focus-border: #0d9f4f;
+    --focus-glow: rgba(13,159,79,0.15);
+    --baznas-green: #006937;
+    --baznas-green-light: #0b7c44;
+    --baznas-accent: #F4C10F;
+}
+
+/* Override Global Aturan Sudut Kotak Biasa (BAZNAS UI Rule) */
+* {
+    border-radius: 0px !important;
+}
+
+/* A. Kartu / Card (.card) */
+.card {
+    box-shadow: none !important;
+    border: 1px solid var(--border-utama) !important;
+    background-color: var(--putih) !important;
+    border-radius: 0px !important;
+}
+.card-header {
+    background-color: var(--putih) !important;
+    border-bottom: 1px solid var(--border-utama) !important;
+}
+.card-body {
+    background-color: var(--putih) !important;
+}
+
+/* B. Tabel (.table & table.dataTable) */
+.table,
+.table-excel,
+table.dataTable {
+    border-collapse: collapse !important;
+    background-color: var(--putih) !important;
+    width: 100% !important;
+    border: 1.5px solid var(--border-luar-tabel) !important;
+}
+
+.dataTables_wrapper {
+    border: none !important;
+    margin-bottom: 1rem !important;
+}
+
+.table thead th,
+.table-excel thead th,
+table.dataTable thead th,
+table.dataTable thead td,
+thead.thead-dark th,
+thead.thead-light th {
+    background-color: var(--putih) !important;
+    color: var(--teks-utama) !important;
+    border: 1px solid var(--border-header-tabel) !important;
+    font-weight: 600 !important;
+    padding: 8px 10px !important;
+    text-align: center !important;
+}
+
+.table tbody tr td,
+table.dataTable tbody tr td {
+    background-color: var(--putih) !important;
+    border: 1px solid var(--border-utama) !important;
+    padding: 7px 10px !important;
+    color: var(--teks-konten) !important;
+}
+
+/* ANTI-ZEBRA: matikan striping bawaan Bootstrap/DataTables di CSS */
+.table-striped > tbody > tr:nth-of-type(odd) > *,
+.table-striped > tbody > tr:nth-of-type(even) > *,
+table.dataTable tbody tr.odd > *,
+table.dataTable tbody tr.even > *,
+table.dataTable tbody td.sorting_1 {
+    background-color: var(--putih) !important;
+    background: var(--putih) !important;
+}
+
+/* HOVER: satu-satunya penanda baris aktif */
+.table tbody tr:hover td,
+table.dataTable tbody tr:hover td {
+    background-color: var(--hover-tabel) !important;
+    transition: background-color 0.15s ease-in-out !important;
+}
+
+/* C. Form Input (.form-control, .custom-select, textarea) */
+.form-control, .custom-select, textarea.form-control {
+    border: 1px solid var(--border-utama) !important;
+    border-radius: 0px !important;
+    background-color: var(--putih) !important;
+    color: var(--teks-utama) !important;
+    box-shadow: none !important;
+}
+.form-control:focus, .custom-select:focus {
+    border-color: var(--focus-border) !important;
+    box-shadow: 0 0 0 0.15rem var(--focus-glow) !important;
+}
+.select2-container--bootstrap4 .select2-selection {
+    border: 1px solid var(--border-utama) !important;
+    border-radius: 0px !important;
+}
+.input-group-text {
+    border: 1px solid var(--border-utama) !important;
+    background-color: #f8f9fa !important;
+    border-radius: 0px !important;
+}
+label { color: var(--teks-utama) !important; font-weight: 600 !important; }
+
+/* D. Modal (.modal-content) */
+.modal-content {
+    background-color: var(--putih) !important;
+    border: 1px solid var(--border-utama) !important;
+    border-radius: 0px !important;
+    box-shadow: none !important;
+}
+.modal-header {
+    background-color: var(--putih) !important;
+    border-bottom: 1px solid var(--border-utama) !important;
+}
+.modal-header .modal-title {
+    font-weight: 600 !important;
+    color: var(--teks-utama) !important;
+}
+.modal-body {
+    background-color: var(--putih) !important;
+    color: var(--teks-konten) !important;
+}
+.modal-footer {
+    background-color: var(--putih) !important;
+    border-top: 1px solid var(--border-utama) !important;
+}
+
+/* E. Tombol / Button (.btn) */
+.btn {
+    border-radius: 0px !important;
+    box-shadow: none !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease-in-out !important;
+}
+.btn-secondary {
+    background-color: #f8f9fa !important;
+    border: 1px solid var(--border-utama) !important;
+    color: var(--teks-konten) !important;
+}
+.btn-default, .btn-light {
+    background-color: var(--putih) !important;
+    border: 1px solid var(--border-utama) !important;
+    color: var(--teks-konten) !important;
+}
+
+/* F. Sidebar */
+.main-sidebar {
+    background-color: var(--putih) !important;
+    border-right: 1px solid var(--border-utama) !important;
+    box-shadow: none !important;
+}
+.brand-link, .user-panel {
+    border-bottom: 1px solid var(--border-utama) !important;
+    background-color: var(--putih) !important;
+}
+.nav-sidebar .nav-item .nav-link {
+    border: 1px solid var(--border-menu) !important;
+    border-radius: 0px !important;
+    margin-bottom: 6px !important;
+    background-color: var(--putih) !important;
+    color: var(--teks-konten) !important;
+}
+.nav-sidebar .nav-treeview .nav-item .nav-link {
+    padding-left: 2rem !important;
+    border-color: var(--border-submenu) !important;
+}
+.nav-sidebar > .nav-item > .nav-link.active {
+    background-color: var(--aktif-bg) !important;
+    color: var(--aktif-teks) !important;
+    border: 1px solid var(--aktif-border) !important;
+    border-left: 3px solid var(--aktif-border) !important;
+}
+.nav-sidebar .nav-link:hover {
+    background-color: var(--hover-menu) !important;
+    border-color: var(--border-utama) !important;
+}
+
+/* G. Header Navbar */
+.main-header {
+    background-color: var(--putih) !important;
+    border-bottom: 1px solid var(--border-utama) !important;
+    box-shadow: none !important;
+}
+
+/* H. Footer */
+.main-footer {
+    background-color: var(--putih) !important;
+    border-top: 1px solid var(--border-utama) !important;
+    box-shadow: none !important;
+}
+
+/* I. Dashboard Card / Small Box */
+.small-box {
+    background-color: var(--putih) !important;
+    border: 1px solid var(--border-utama) !important;
+    box-shadow: none !important;
+    border-radius: 0px !important;
+}
+.small-box > .inner h3 { color: var(--teks-utama) !important; }
+.small-box > .inner p  { color: var(--teks-sekunder) !important; }
+.small-box.bg-primary, .small-box.bg-success,
+.small-box.bg-info, .small-box.bg-warning {
+    background-color: var(--putih) !important;
+}
+.small-box > .icon i { color: rgba(0,0,0,0.08) !important; }
+.small-box .small-box-footer {
+    background-color: #f8f9fa !important;
+    color: #555555 !important;
+    border-top: 1px solid var(--border-utama) !important;
+}
+
+/* J. Alert Ringkasan (.alert-excel) */
+.alert-excel {
+    background-color: var(--putih) !important;
+    border: 1px solid var(--border-utama) !important;
+    color: var(--teks-utama) !important;
+    border-left: 4px solid #007bff !important;
+    box-shadow: none !important;
+    border-radius: 0px !important;
+}

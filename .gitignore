@@ -1,0 +1,29 @@
+# Antigravity & IDE Files
+.agents/
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+
+# CodeIgniter Logs and Cache (keep index.html for security)
+application/logs/*
+!application/logs/index.html
+application/cache/*
+!application/cache/index.html
+
+# Captcha temporary images
+captcha/*.jpg
+captcha/*.png
+
+# Composer / Dependencies (if any)
+/vendor/
+/composer.phar
+
+# Temporary files
+*.tmp
+*.bak

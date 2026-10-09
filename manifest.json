@@ -1,0 +1,31 @@
+{
+  "name": "BAZNAS Kabupaten Sumbawa",
+  "short_name": "BAZNAS Sumbawa",
+  "description": "Badan Amil Zakat Nasional Kabupaten Sumbawa - Pilihan Pertama Pembayar Zakat, Lembaga Utama Menyejahterakan Umat.",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#006937",
+  "scope": "./",
+  "protocol_handlers": [
+    {
+      "protocol": "web+baznas",
+      "url": "./?pwa_mode=standalone&url=%s"
+    }
+  ],
+  "icons": [
+    {
+      "src": "asset/images/pwa-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "asset/images/pwa-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

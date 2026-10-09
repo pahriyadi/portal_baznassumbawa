@@ -1,0 +1,13 @@
+User-agent: Mediapartners-Google
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: *
+Allow: /
+Disallow: /application/
+Disallow: /system/
+Disallow: /administrator/
+
+Sitemap: https://www.baznassumbawa.id/sitemap.xml

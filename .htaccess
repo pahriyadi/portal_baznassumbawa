@@ -1,0 +1,41 @@
+# Protect Sensitive Files
+<FilesMatch "(?i)\.(sql|env|git|svn|ini|log|bak|conf|md|json|lock)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order Deny,Allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Security Headers
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+RewriteEngine On
+
+# =========================================================================
+# SAKLAR MODE PEMELIHARAAN & PENINGKATAN KEAMANAN (MAINTENANCE MODE SWITCH)
+# =========================================================================
+# Untuk MENGAKTIFKAN: Hapus tanda '#' pada 4 baris di bawah ini.
+# Untuk MENONAKTIFKAN: Beri tanda '#' kembali pada 4 baris di bawah ini.
+# (Akses file asset logo/gambar tetap diizinkan agar halaman maintenance tampil sempurna)
+# -------------------------------------------------------------------------
+# RewriteCond %{REQUEST_URI} !/maintenance\.(html|php)$ [NC]
+# RewriteCond %{REQUEST_URI} !\.(css|js|png|jpe?g|gif|ico|svg|woff2?)$ [NC]
+# RewriteCond %{REQUEST_URI} !^/administrator [NC]
+# RewriteRule ^(.*)$ /maintenance.php [R=302,L]
+# =========================================================================
+
+RewriteRule ^main/?$ / [R=301,L]
+
+RewriteCond %{REQUEST_URI} ^/system.*
+RewriteRule ^(.*)$ index.php?/$1 [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.+)$ index.php?/$1 [L]
