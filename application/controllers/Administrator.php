@@ -16,8 +16,8 @@ class Administrator extends CI_Controller {
 
 	function index(){
         // Gerbang Kunci Rahasia URL Administrator (Secret Access Key Gate)
-        // Akses via: https://baznassumbawa.id/administrator?kunci=baznas2026
-        $secret_key = 'baznas2026';
+        // Akses via: https://baznassumbawa.id/administrator?kunci=B4znASsBW
+        $secret_key = 'B4znASsBW';
         if ($this->input->get('kunci') === $secret_key) {
             $this->session->set_userdata('admin_gate_pass', true);
         }
