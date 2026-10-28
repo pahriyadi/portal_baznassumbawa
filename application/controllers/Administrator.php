@@ -15,16 +15,83 @@ class Administrator extends CI_Controller {
 	}
 
 	function index(){
-        // Gerbang Kunci Rahasia URL Administrator (Secret Access Key Gate)
-        // Akses via: https://baznassumbawa.id/administrator?kunci=S8mB2026BaznAS
-        $secret_key = 'S8mB2026BaznAS'; // Ganti dengan kunci rahasia Anda sendiri
-        if ($this->input->get('kunci') === $secret_key) {
-            $this->session->set_userdata('admin_gate_pass', true);
-        }
+        // Pastikan kolom pengaturan Google Login tersedia di tabel identitas
+        $this->model_app->ensure_google_login_columns();
+        $iden = $this->model_app->edit('identitas', array('id_identitas' => 1))->row_array();
+        $googleLoginEnabled = (isset($iden['google_login_enabled']) ? (string)$iden['google_login_enabled'] : '0') === '1';
+        $googleClientId = isset($iden['google_client_id']) ? trim((string)$iden['google_client_id']) : '';
+        $isGoogleAuthActive = ($googleLoginEnabled && $googleClientId !== '');
+        $googleLoginMode = $isGoogleAuthActive ? (isset($iden['google_login_mode']) ? (string)$iden['google_login_mode'] : 'both') : 'both';
 
-        // Jika user belum login dan belum membuka gerbang kunci rahasia, sembunyikan portal admin
-        if ($this->session->userdata('level') !== 'admin' && !$this->session->userdata('admin_gate_pass')) {
-            redirect('main');
+        $authType = (string)$this->input->post('auth_type', TRUE);
+
+        if ($authType === 'google') {
+            $ip_address = $this->input->ip_address();
+            $throttle_key = 'login_throttle_' . md5($ip_address);
+            $throttle_data = $this->session->userdata($throttle_key);
+            $now = time();
+
+            if ($throttle_data && isset($throttle_data['attempts']) && $throttle_data['attempts'] >= 5 && ($now - $throttle_data['last_attempt']) < 900) {
+                $wait = ceil((900 - ($now - $throttle_data['last_attempt'])) / 60);
+                $this->session->set_flashdata('message', '<div class="alert alert-danger"><center>Terlalu banyak percobaan login gagal. Silakan tunggu ' . $wait . ' menit lagi.</center></div>');
+                redirect($this->uri->segment(1).'/index');
+                return;
+            }
+
+            $idToken = trim((string)$this->input->post('google_credential'));
+            if (!$isGoogleAuthActive) {
+                $this->session->set_flashdata('message', '<div class="alert alert-danger"><center>Login menggunakan akun Google sedang tidak diaktifkan.</center></div>');
+                redirect($this->uri->segment(1).'/index');
+                return;
+            }
+            if ($idToken === '') {
+                $this->session->set_flashdata('message', '<div class="alert alert-danger"><center>Token kredensial Google tidak ditemukan.</center></div>');
+                redirect($this->uri->segment(1).'/index');
+                return;
+            }
+
+            $googleErr = '';
+            $googleUser = $this->model_app->verify_google_id_token($idToken, $googleClientId, $googleErr);
+            if (!$googleUser) {
+                $errMsg = ($googleErr !== '') ? $googleErr : 'Verifikasi akun Google gagal.';
+                $this->session->set_flashdata('message', '<div class="alert alert-danger"><center>' . htmlspecialchars($errMsg) . '</center></div>');
+                redirect($this->uri->segment(1).'/index');
+                return;
+            }
+
+            $email = $googleUser['email'];
+            $row = $this->model_app->find_user_by_email($email);
+            if (!$row) {
+                $attempts = ($throttle_data && isset($throttle_data['attempts'])) ? ($throttle_data['attempts'] + 1) : 1;
+                $this->session->set_userdata($throttle_key, array('attempts' => $attempts, 'last_attempt' => $now));
+                $this->session->set_flashdata('message', '<div class="alert alert-danger"><center>Akun Google (<b>' . htmlspecialchars($email) . '</b>) belum terdaftar di sistem. Silakan hubungi Administrator untuk mendaftarkan email Anda.</center></div>');
+                redirect($this->uri->segment(1).'/index');
+                return;
+            }
+
+            if ($row['blokir'] === 'Y') {
+                $this->session->set_flashdata('message', '<div class="alert alert-danger"><center>Akun Anda (' . htmlspecialchars($email) . ') sedang dinonaktifkan/diblokir oleh sistem.</center></div>');
+                redirect($this->uri->segment(1).'/index');
+                return;
+            }
+
+            if ($row['level'] !== 'admin') {
+                $this->session->set_flashdata('message', '<div class="alert alert-danger"><center>Akses Ditolak: Hak akses akun selain Administrator Resmi dinonaktifkan permanen demi keamanan.</center></div>');
+                redirect($this->uri->segment(1).'/index');
+                return;
+            }
+
+            if (method_exists($this->session, 'sess_regenerate')) {
+                $this->session->sess_regenerate(TRUE);
+            }
+            $this->session->unset_userdata($throttle_key);
+            $this->session->set_userdata('upload_image_file_manager', true);
+            $this->session->set_userdata(array(
+                'username'   => $row['username'],
+                'level'      => $row['level'],
+                'id_session' => $row['id_session']
+            ));
+            redirect($this->uri->segment(1).'/home');
             return;
         }
 
@@ -64,6 +131,13 @@ class Administrator extends CI_Controller {
                     return;
                 }
 
+                // Pembatasan Mode Login Manual sesuai pengaturan Google Login
+                if ($isGoogleAuthActive && in_array($googleLoginMode, array('staff_google_only', 'google_only'), true) && $row['level'] !== 'admin') {
+                    echo $this->session->set_flashdata('message', '<div class="alert alert-danger"><center>Demi keamanan sistem, staf wajib masuk menggunakan tombol Akun Google Resmi yang terdaftar.</center></div>');
+                    redirect($this->uri->segment(1).'/index');
+                    return;
+                }
+
                 // Validasi Level: HANYA Administrator Resmi yang Diizinkan Masuk Sistem
                 if ($row['level'] !== 'admin'){
                     echo $this->session->set_flashdata('message', '<div class="alert alert-danger"><center>Akses Ditolak: Hak akses akun selain Administrator Resmi dinonaktifkan permanen demi keamanan.</center></div>');
@@ -71,6 +145,9 @@ class Administrator extends CI_Controller {
                     return;
                 }
 
+                if (method_exists($this->session, 'sess_regenerate')) {
+                    $this->session->sess_regenerate(TRUE);
+                }
                 $this->session->unset_userdata($throttle_key);
 				$this->session->set_userdata('upload_image_file_manager',true);
 				$this->session->set_userdata(array('username'=>$row['username'],
@@ -106,6 +183,10 @@ class Administrator extends CI_Controller {
                 $data['image'] = $cap['image'];
                 $this->session->set_userdata('mycaptcha', $cap['word']);
     			$data['title'] = 'Users &rsaquo; Log In';
+                $data['iden'] = $iden;
+                $data['isGoogleAuthActive'] = $isGoogleAuthActive;
+                $data['googleClientId'] = $googleClientId;
+                $data['googleLoginMode'] = $googleLoginMode;
     			$this->load->view('administrator/view_login',$data);
             }
 		}
@@ -185,6 +266,7 @@ class Administrator extends CI_Controller {
 
 	function identitaswebsite(){
 		cek_session_akses('identitaswebsite',$this->session->id_session);
+        $this->model_app->ensure_google_login_columns();
 		if (isset($_POST['submit'])){
 			$config['upload_path'] = 'asset/images/';
             $config['allowed_types'] = 'gif|jpg|png|ico';
@@ -201,6 +283,13 @@ class Administrator extends CI_Controller {
             $hasil2=$this->upload->data();
             $qris = $hasil2['file_name'];
 
+            $g_enabled = ($this->input->post('google_login_enabled') === '1') ? '1' : '0';
+            $g_mode = $this->input->post('google_login_mode');
+            if (!in_array($g_mode, array('both', 'staff_google_only', 'google_only'), true)) {
+                $g_mode = 'both';
+            }
+            $g_client_id = trim((string)$this->input->post('google_client_id'));
+
             $data = array('nama_website'=>$this->db->escape_str($this->input->post('a')),
                             'email'=>$this->db->escape_str($this->input->post('b')),
                             'url'=>$this->db->escape_str($this->input->post('c')),
@@ -211,7 +300,10 @@ class Administrator extends CI_Controller {
                             'meta_keyword'=>$this->db->escape_str($this->input->post('h')),
                             'maps'=>$this->input->post('i'),
                             'google_analytics'=>$this->input->post('ga'),
-                            'google_adsense'=>$this->input->post('ads'));
+                            'google_adsense'=>$this->input->post('ads'),
+                            'google_login_enabled'=>$g_enabled,
+                            'google_login_mode'=>$g_mode,
+                            'google_client_id'=>$this->db->escape_str($g_client_id));
             
             if ($favicon != ''){
                 $data['favicon'] = $favicon;
@@ -222,6 +314,7 @@ class Administrator extends CI_Controller {
 
 	    	$where = array('id_identitas' => $this->input->post('id'));
 			$this->model_app->update('identitas', $data, $where);
+            $this->session->set_flashdata('message', '<div class="alert alert-success">Pengaturan Identitas & Login Google berhasil diperbarui!</div>');
 
 			redirect($this->uri->segment(1).'/identitaswebsite');
 		}else{
@@ -2471,6 +2564,13 @@ class Administrator extends CI_Controller {
 		cek_session_akses('manajemenuser',$this->session->id_session);
 		$id = $this->session->username;
 		if (isset($_POST['submit'])){
+            $new_email = trim((string)$this->input->post('d'));
+            if ($this->model_app->is_email_taken($new_email)) {
+                $this->session->set_flashdata('message', '<div class="alert alert-danger">Alamat email <b>' . htmlspecialchars($new_email) . '</b> sudah digunakan oleh akun lain! Silakan gunakan email yang berbeda.</div>');
+                redirect($this->uri->segment(1).'/tambah_manajemenuser');
+                return;
+            }
+
 			$config['upload_path'] = 'asset/foto_user/';
             $config['allowed_types'] = 'gif|jpg|png|JPG|JPEG';
             $config['max_size'] = '1000'; // kb
@@ -2524,6 +2624,13 @@ class Administrator extends CI_Controller {
             if ($this->session->level != 'admin' && $this->session->username != $target_username){
                 redirect($this->uri->segment(1).'/home');
                 exit;
+            }
+
+            $new_email = trim((string)$this->input->post('d'));
+            if ($this->model_app->is_email_taken($new_email, $target_username)) {
+                $this->session->set_flashdata('message', '<div class="alert alert-danger">Alamat email <b>' . htmlspecialchars($new_email) . '</b> sudah digunakan oleh pengguna lain!</div>');
+                redirect($this->uri->segment(1).'/edit_manajemenuser/'.$target_username);
+                return;
             }
 
 			$config['upload_path'] = 'asset/foto_user/';

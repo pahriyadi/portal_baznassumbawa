@@ -5,6 +5,7 @@
                   <h3 class='card-title'>Tambah Data User</h3>
                 </div>
               <div class='card-body'>";
+              echo $this->session->flashdata('message');
               $attributes = array('class'=>'form-horizontal','role'=>'form');
               echo form_open_multipart($this->uri->segment(1).'/tambah_manajemenuser',$attributes); 
           echo "
@@ -13,7 +14,7 @@
                     <tr><th width='120px' scope='row'>Username</th>   <td><input type='text' class='form-control' name='a' onkeyup=\"nospaces(this)\" required></td></tr>
                     <tr><th scope='row'>Password</th>                 <td><input type='password' class='form-control' name='b' onkeyup=\"nospaces(this)\" required></td></tr>
                     <tr><th scope='row'>Nama Lengkap</th>             <td><input type='text' class='form-control' name='c' required></td></tr>
-                    <tr><th scope='row'>Alamat Email</th>             <td><input type='email' class='form-control' name='d' required></td></tr>
+                    <tr><th scope='row'>Alamat Email</th>             <td><input type='email' class='form-control' name='d' required><small class='text-muted'>Gunakan alamat email Google/Gmail resmi yang unik untuk mendukung Login Akun Google.</small></td></tr>
                     <tr><th scope='row'>No Telepon</th>               <td><input type='number' class='form-control' name='e' required></td></tr>
                     <tr><th scope='row'>Upload Foto</th>              <td><input type='file' class='form-control' name='f'></td></tr>
                     <tr><th scope='row'>Level</th>                   <td><input type='radio' name='g' value='admin' checked> Administrator Resmi</td></tr>
