@@ -3,7 +3,33 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Laporan extends CI_Controller {
 
+    private function _ensure_schema(){
+        $fields = $this->db->list_fields('laporan_keuangan');
+        if (!in_array('kategori', $fields)) {
+            $this->db->query("ALTER TABLE laporan_keuangan ADD COLUMN kategori VARCHAR(50) NOT NULL DEFAULT 'Tahunan'");
+        }
+        if (!in_array('tahun', $fields)) {
+            $this->db->query("ALTER TABLE laporan_keuangan ADD COLUMN tahun VARCHAR(10) NOT NULL DEFAULT '2026'");
+        }
+        if (!in_array('bulan', $fields)) {
+            $this->db->query("ALTER TABLE laporan_keuangan ADD COLUMN bulan VARCHAR(30) DEFAULT ''");
+        }
+        if (!in_array('keterangan', $fields)) {
+            $this->db->query("ALTER TABLE laporan_keuangan ADD COLUMN keterangan TEXT");
+        }
+        if (!in_array('nama_file', $fields)) {
+            $this->db->query("ALTER TABLE laporan_keuangan ADD COLUMN nama_file VARCHAR(255) DEFAULT ''");
+        }
+        if (!in_array('tgl_posting', $fields)) {
+            $this->db->query("ALTER TABLE laporan_keuangan ADD COLUMN tgl_posting DATETIME DEFAULT CURRENT_TIMESTAMP");
+        }
+        if (!in_array('hits', $fields)) {
+            $this->db->query("ALTER TABLE laporan_keuangan ADD COLUMN hits INT(11) NOT NULL DEFAULT 0");
+        }
+    }
+
 	public function index(){
+        $this->_ensure_schema();
         // Get identities
 		$iden = $this->db->query("SELECT * FROM identitas ORDER BY id_identitas DESC LIMIT 1")->row_array();
 		$data['title'] = "Laporan Keuangan - ".$iden['nama_website'];

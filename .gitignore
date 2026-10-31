@@ -27,3 +27,11 @@ captcha/*.png
 # Temporary files
 *.tmp
 *.bak
+
+# Node & Playwright E2E Testing Artifacts
+node_modules/
+playwright-report/
+test-results/
+blob-report/
+playwright/.cache/
+tests/.auth/
