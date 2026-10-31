@@ -31,8 +31,14 @@ git commit -m "test: uji coba update pertama"
 git push origin main
 ```
 
-### 🌐 Tahap 2: Di Terminal cPanel Hosting (Cukup 1 Baris)
-Buka Terminal cPanel, lalu ketik:
+### 🌐 Tahap 2: Otomatis via GitHub Webhook (Tanpa Buka cPanel!)
+Setelah Webhook `deploy.php` terpasang di GitHub, setiap kali Anda menjalankan `git push origin main` dari laptop, server `https://baznassumbawa.id` **otomatis menarik update sendiri dalam 2 detik**!
+
+- **URL Pemicu Manual (Jika ingin tarik paksa lewat browser tanpa buka cPanel):**
+  `https://baznassumbawa.id/deploy.php?key=BaznasSumbawa2026_AutoDeploy_99!`
+
+### 🌐 Alternatif Manual di Terminal cPanel Hosting (Cukup 1 Baris)
+Jika suatu saat Anda sedang membuka Terminal cPanel, ketik:
 ```bash
 cd public_html && git pull origin main
 ```
